@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flor 3D</title>
+  <style>
+    body { margin: 0; overflow: hidden; background-color: #050505; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Geometría para la estructura de la flor
+    const geometry = new THREE.BufferGeometry();
+    const count = 12000;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      let u = Math.random() * Math.PI * 12;
+      let v = Math.random() * Math.PI;
+      let r = Math.sin(5 * u) * 2;
+      
+      let x = r * Math.sin(v) * Math.cos(u);
+      let y = r * Math.sin(v) * Math.sin(u);
+      let z = r * Math.cos(v);
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
+
+      // Color degradado (rojo/rosa a amarillo)
+      colors[i * 3] = 0.9 + 0.1 * Math.sin(u);
+      colors[i * 3 + 1] = 0.1 + 0.2 * Math.cos(v);
+      colors[i * 3 + 2] = 0.4;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({ size: 0.04, vertexColors: true });
+    const flower = new THREE.Points(geometry, material);
+    scene.add(flower);
+
+    camera.position.z = 5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      flower.rotation.x += 0.005;
+      flower.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
